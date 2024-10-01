@@ -3,7 +3,8 @@ const Cart = require('../models/cart');
 const Ticket = require('../models/ticket'); 
 const Product = require('../models/products'); 
 const cartDTO = require('../dto/cartDTO')
-const TicketDTO = require('../dto/ticketDTO'); // Importa el DTO del ticket
+const TicketDTO = require('../dto/ticketDTO'); // Importa el DTO del ticket 
+
 
 // Crear un nuevo carrito
 const createCart = async (req, res) => {
@@ -147,30 +148,28 @@ const purchaseCart = async (req, res) => {
     // Si no se compró ningún producto, retornar un mensaje de error
     if (purchasedProducts.length === 0) {
       return res.status(400).json({
-        message: 'No se pudo realizar la compra, ninguno de sus productos está disponible',
+        message: 'No se pudo realizar la compra, porque ninguno de los productos está disponible',
         unavailableProducts,
       });
     }
 
     // Solo eliminar los productos que fueron comprados exitosamente
     cart.products = cart.products.filter(item => {
-      const product = item.product;
-      return purchasedProducts.some(p => p.productId.toString() !== product._id.toString());
+      return !purchasedProducts.some(p => p.productId.toString() === item.product._id.toString());
     });
 
     await cart.save(); // Guardar los cambios en el carrito
 
     // Crear el ticket en la base de datos
     const ticketData = {
-      code: generateUniqueCode(), // Asegúrate de tener esta función para generar un código único
       purchase_datetime: new Date(),
       amount: total,
-      purchaser: req.user.email, // Asegúrate de que req.user tenga el email
+      purchaser: req.user.email, // Asegúrate de que req.user esté disponible
     };
 
     const ticket = await Ticket.create(ticketData); // Crea el ticket en la base de datos
 
-    // Crear el DTO del ticket
+    // Crear una instancia del TicketDTO
     const ticketDTO = new TicketDTO(ticket);
 
     // Retornar éxito en la compra
@@ -178,20 +177,14 @@ const purchaseCart = async (req, res) => {
       message: 'Compra realizada con éxito',
       total,
       unavailableProducts,
-      ticket: ticketDTO, // Incluir el ticket DTO en la respuesta
+      ticket: ticketDTO, // Incluir el ticketDTO en la respuesta
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al procesar la compra', details: error.message });
+    res.status(500).json({ message: 'Error al procesar la compra' });
   }
 };
-
-const generateUniqueCode = () => {
-  // Lógica para generar un código único para el ticket
-  return 'TICKET-' + Math.random().toString(36).substring(2, 15).toUpperCase();
-};
-
 
 
 

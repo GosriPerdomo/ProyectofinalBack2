@@ -39,24 +39,12 @@ const deleteProduct = async (id) => {
   return result !== null;
 };
 
-const updateStock = async (pid, stock) => {
-  const product = await Product.findById(pid); 
-  if (!product) {
-    return null; // Retornar null si el producto no existe
-  }
-
-  product.stock = stock; 
-  await product.save(); 
-  return product;  
-};
-
 // Asegúrate de que updateStock esté en las exportaciones
 module.exports = {
   create,
   findAll,
   findById,
-  deleteProduct,
-  updateStock 
+  deleteProduct
 };
 
 

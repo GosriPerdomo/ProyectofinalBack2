@@ -1,4 +1,5 @@
 const productDAO = require('../models/products');
+const Product = require('../models/products'); 
 
 
 const createProduct = async (req, res) => {
@@ -46,26 +47,40 @@ const deleteProductById = async (req, res) => {
   }
 };
 
-const updateStock = async (req, res) => {
-  const { pid } = req.params; // Obtener el ID del producto
-  const { stock } = req.body; // Obtener la nueva cantidad de stock del body
+const updateProductQuantity = async (req, res) => {
+  const { pid } = req.params;
+  const { quantity } = req.body; // Obtener la nueva cantidad desde el cuerpo de la solicitud
 
   try {
-    const result = await productDAO.updateStock(pid, stock); // Llamar al DAO correspondiente
-    if (result) {
-      res.status(200).json({ status: 'success', message: 'Stock updated successfully', product: result });
-    } else {
-      res.status(404).json({ status: 'error', message: 'Product not found' });
+    // Validar la cantidad
+    if (quantity === undefined || quantity < 0) {
+      return res.status(400).json({ message: 'La cantidad debe ser un número positivo' });
     }
+
+    // Buscar el producto por ID
+    const product = await Product.findById(pid);
+    if (!product) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    // Actualizar el stock del producto
+    product.stock = quantity; // Asignar la nueva cantidad al stock
+    await product.save(); // Guardar los cambios en la base de datos
+
+    // Retornar la respuesta
+    res.status(200).json({ message: 'Cantidad de producto actualizada con éxito', product });
   } catch (error) {
-    res.status(500).json({ status: 'error', message: 'Error updating product stock', details: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Error al actualizar la cantidad del producto' });
   }
 };
+
+
 
 module.exports = {
   createProduct,
   getAllProducts,
   getProductById,
   deleteProductById,
-  updateStock,
+  updateProductQuantity
 };

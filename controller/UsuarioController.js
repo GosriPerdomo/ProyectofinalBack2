@@ -1,10 +1,9 @@
-// controller/UsuarioController.js
 const UsuarioDao = require('../dao/UsuarioDao'); 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user'); 
-const Cart = require('../models/cart'); // Importa el modelo de carrito
-const UserDTO = require('../dto/userDTO'); // Importamos el DTO
+const Cart = require('../models/cart'); 
+const UserDTO = require('../dto/userDTO'); 
 
 const usuarioDao = new UsuarioDao();
 const secretKey = process.env.JWT_SECRET_KEY || 'tareacoder';
@@ -14,7 +13,7 @@ class UsuarioController {
   async obtenerUsuarios(req, res) {
     try {
       const usuarios = await usuarioDao.findAll();
-      const usuariosDTO = usuarios.map(usuario => new UserDTO(usuario)); // Convertir a DTO
+      const usuariosDTO = usuarios.map(usuario => new UserDTO(usuario)); 
       res.json(usuariosDTO);
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener los usuarios', details: error.message });
@@ -28,7 +27,7 @@ class UsuarioController {
       if (!usuario) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
       }
-      const usuarioDTO = new UserDTO(usuario); // Convertir a DTO
+      const usuarioDTO = new UserDTO(usuario); 
       res.json(usuarioDTO);
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener el usuario', details: error.message });
@@ -57,14 +56,14 @@ async registrarUsuario(req, res) {
       last_name,
       age,
       role,
-      cart: nuevoCarrito._id, // Asignar el ID del carrito al usuario
+      cart: nuevoCarrito._id, 
     });
 
-    // Actualizar el carrito para asignarle el owner
-    nuevoCarrito.owner = nuevoUsuario._id; // Asignar el owner
-    await nuevoCarrito.save(); // Guardar los cambios en el carrito
+  
+    nuevoCarrito.owner = nuevoUsuario._id; 
+    await nuevoCarrito.save(); 
 
-    const usuarioDTO = new UserDTO(nuevoUsuario); // Convertir a DTO
+    const usuarioDTO = new UserDTO(nuevoUsuario); 
     res.status(201).json({ message: 'Usuario creado con éxito', user: usuarioDTO });
   } catch (error) {
     res.status(500).json({ error: 'Error al registrar el usuario', details: error.message });
@@ -96,7 +95,7 @@ async registrarUsuario(req, res) {
       );
 
       // Enviar el token en una cookie
-      res.cookie('jwt', token, { httpOnly: true, maxAge: 3600000 }); // 1 hora
+      res.cookie('jwt', token, { httpOnly: true, maxAge: 3600000 }); 
       res.json({
         status: "success",
         message: "Logged in"
@@ -113,7 +112,7 @@ async registrarUsuario(req, res) {
       if (!usuarioActualizado) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
       }
-      const usuarioDTO = new UserDTO(usuarioActualizado); // Convertir a DTO
+      const usuarioDTO = new UserDTO(usuarioActualizado); 
       res.json(usuarioDTO);
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el usuario', details: error.message });

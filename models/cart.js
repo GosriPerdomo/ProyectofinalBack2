@@ -14,7 +14,7 @@ const cartSchema = new mongoose.Schema({
   }],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Referencia al modelo User
+    ref: 'User', // 
     required: false // Permitir carritos sin owner
   }
 });

@@ -21,14 +21,11 @@ passport.use(
     try {
       const user = await User.findById(payload.id);
       if (user) {
-        console.log('Usuario autenticado:', user);
         return done(null, user);
       } else {
-        console.log('Usuario no encontrado, token inválido.');
         return done(null, false);
       }
     } catch (err) {
-      console.error('Error al buscar el usuario:', err);
       return done(err, false);
     }
   })
